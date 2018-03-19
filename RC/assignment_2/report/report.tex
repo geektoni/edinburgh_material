@@ -1,0 +1,299 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[makeroom]{cancel}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\author{UNN: S1796157}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\allowdisplaybreaks
+
+\begin{document}
+
+\begin{center}
+{\Large Randomness and Computation}\\
+{\Large Coursework 2}
+\smallskip
+
+{UNN: S1796157}
+\end{center}
+
+\section*{Question 1}
+
+\subsection*{a)}
+To prove the equality, we need to define some other basic statements which will be useful during the proof.
+\begin{enumerate}
+\item We defined $|AO(G)|$ as the number of DAGs which can be constructed from G. We also defined $A_{n,m}$ as
+the total number of DAGs which have $n$ vertices and $m$ edges. We now redefine $A_{n,m}$ with respect to $AO(G)$:
+\begin{equation}
+A_{n,m} = \sum_{G=(V,E), |V|=n, |E|=m} |AO(G)|
+\label{1a_conclusion}
+\end{equation} 
+$A_{n,m}$ can be seen as the sum of all $|AO(G)|$ over all possible undirected
+graphs $G$ with exactly $m$ edges and $n$ vertices;
+\item We also defined $\mathbb{E}[|AO(G)|] = \sum_{G=(V,E), |V|=n} Pr[G]\cdot |AO(G)|$, which is the expected
+number of AOs given a graph generated from $G_{n,p}$. We now redefine the expectation to take into account
+the number of edges:
+\begin{equation}
+\mathbb{E}[|AO(G)|] = \sum_{m=0}^{\binom{n}{2}}\sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} Pr[G]\cdot |AO(G)|
+\end{equation} 
+This new way to express the expectation is equivalent to the original definition. For a given number of edges $m$,
+we now sum the product $P[G]\cdot |AO(G)|$ over all possible graphs $G$ which have $|E|=m$. We can procede
+further since we know that all graphs with $m$ edges have the same probability in the $G_{n,p}$ model. 
+Therefore:
+\begin{equation}
+\mathbb{E}[|AO(G)|] = \sum_{m=0}^{\binom{n}{2}}Pr[G]\sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} |AO(G)|
+\end{equation} 
+\end{enumerate}
+
+\begin{proof}
+\begin{gather}
+\mathcal{A}_n \left( \frac{p}{1-p} \right) = (1-p)^{-\binom{n}{2}} \cdot \mathbb{E}[|AO(G)|]\\
+\sum_{m=0}^{\binom{n}{2}}\mathcal{A}_{n,m}\left(\frac{p}{1-p}\right)^m =(1-p)^{-\binom{n}{2}} \cdot
+\sum_{m=0}^{\binom{n}{2}}Pr[G]\sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} |AO(G)|\\
+\sum_{m=0}^{\binom{n}{2}}\mathcal{A}_{n,m} \cdot p^m \cdot (1-p)^{-m} =
+(1-p)^{-\binom{n}{2}}\sum_{m=0}^{\binom{n}{2}}Pr[G]\sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} |AO(G)|\\
+\sum_{m=0}^{\binom{n}{2}}\mathcal{A}_{n,m} \cdot p^m \cdot (1-p)^{-m} =
+(1-p)^{-\binom{n}{2}}\sum_{m=0}^{\binom{n}{2}}p^m(1-p)^{\binom{n}{2}}\cdot (1-p)^{-m}\sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} |AO(G)|\\
+\sum_{m=0}^{\binom{n}{2}} \mathcal{A}_{n,m} \cdot p^m \cdot (1-p)^{-m} =
+\cancel{(1-p)^{-\binom{n}{2}}}\cancel{(1-p)^{\binom{n}{2}}}\sum_{m=0}^{\binom{n}{2}}p^m\cdot (1-p)^{-m}\cdot \sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} |AO(G)|\\
+\sum_{m=0}^{\binom{n}{2}} \mathcal{A}_{n,m} \cdot p^m \cdot (1-p)^{-m} =
+\sum_{m=0}^{\binom{n}{2}}p^m\cdot (1-p)^{-m}\cdot \sum_{\substack{G=(V,E)\\|V|=n,|E|=m}} |AO(G)|
+\label{1a_final}
+\end{gather}
+From equation (\ref{1a_conclusion}) we know that $A_{n,m} = \sum_{G=(V,E), |V|=n, |E|=m} |AO(G)|$ and therefore
+equation (\ref{1a_final}) becomes:
+\begin{equation}
+\sum_{m=0}^{\binom{n}{2}} \mathcal{A}_{n,m} \cdot p^m \cdot (1-p)^{-m} =
+\sum_{m=0}^{\binom{n}{2}}p^m\cdot (1-p)^{-m}\cdot \mathcal{A}_{n,m}
+\end{equation}
+Hence, the equality is proven.
+\end{proof}
+
+\subsection*{b)}
+
+To evaluate $\mathbb{E}[|AO(G)|]$ we just need to compute the $A(\frac{p}{1-p})\cdot (1-p)^{\binom{n}{2}}$ value (we
+can trivially derive it from the equality proven in the previous question). We will also employ the recurrence given
+below, which can be efficiently computed by using dynamic programming:
+\begin{align}
+\mathcal{A}_n\left(\frac{p}{1-p}\right) &= \sum_{i=1}^n (-1)^{i+1}\binom{n}{i}\left(1+\frac{p}{1-p}\right)^{i(n-i)}\mathcal{A}_{n-i}\left(\frac{p}{1-p}\right)\\
+&= \sum_{i=1}^n (-1)^{i+1}\binom{n}{i}\left(\frac{1}{1-p}\right)^{i(n-i)}\mathcal{A}_{n-i}\left(\frac{p}{1-p}\right)
+\end{align}
+We now show the pseudocode:
+\begin{algorithm}
+\caption{Expectation algorithm for graphs $G$ generated from the Erd{\"o}s-Rényi model $G_{n,p}$}
+\begin{algorithmic}[1]
+\Function{expAO}{n,p}
+	\State $A \gets array[0\ldots n]$; \Comment{This array will store the $\mathcal{A}_{n}$ values.}
+	\State $pows \gets array[0\ldots \ceil{\frac{n^2}{4}}]$; \Comment{This array will store the $\left(\frac{1}{1-p}^{i(n-i)}\right)$ values.}
+	\State $pows[0] \gets 1$;	
+	\For{$i\gets1$ to $\ceil{\frac{n^2}{4}}$} \Comment{$\ceil{\frac{n^2}{4}}$ is the highest exponent we will find.}
+		\State $pows[i] \gets pows[i-1]\cdot \frac{1}{1-p}$;
+	\EndFor
+	\State $A[0] \gets A[1] \gets 1$; \Comment{Base cases for dynamic programming.}
+	\For{$i\gets2 $ to $ n$}
+		\State $A[i] \gets 0$;
+		\State $b \gets 1$;
+		\For{$j\gets1$ to $i$}
+			\State $b \gets \frac{b\cdot(i-j+1)}{i}$; \Comment{Here we compute the binomial coefficient.}
+			\State $sign \gets if\; (j+1) \%2==0 \;then\; 1\; else\; -1$; \Comment{We check the sign of 1.}
+			\State $A[i] \gets A[i]+sign\cdot b\cdot pows[j\cdot(i-j)]\cdot A[i-j]$;		
+		\EndFor
+	\EndFor
+	\State \Return $A[n]\cdot (1-p)^{\binom{n}{2}}$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The resulting algorithm has a complexity of $\mathcal{O}(n^2)$. Here it is assumed that the exponentiation of a number, namely $b^k$, has a complexity of $O(k)$ (we assume it is obtained by multiplying $k$ times $b$). We can easily derive the $\mathcal{O}(n^2)$ upper bound noticing that:
+\begin{enumerate}
+\item On line 5, to compute all the powers of $\frac{1}{1-p}$ we need to perform $\ceil{\frac{n^2}{4}}$ operations,
+which leads to a complexity of $\mathcal{O}(n^2)$;
+\item On line 9, the double for loop runs for $\sum_{i=1}^{n-2} (n-i)i$ times, which clearly has a complexity of $\mathcal{O}(n^2)$;
+\item On line 18, computing the quantity $(1-p)^{\binom{n}{2}}$ has a complexity of $\mathcal{O}(\binom{n}{2})=\mathcal{O}(n^2)$.
+\end{enumerate}
+Therefore, the total complexity of the algorithm is $\mathcal{O}(3n^2)$, hence we can assume that is $\mathcal{O}(n^2)$.
+
+\section*{Question 2}
+
+The derandomization of the modified Max-Cut algorithm works as follows. We imagine placing vertexes $v_i,\ldots,v_n$
+deterministically, one at a time, into the partition $L$, which has to have maximum size of $\floor{\frac{n}{2}}$. 
+Suppose we have already placed the first $k$ vertices in $L$ (with $k<\floor{\frac{n}{2}}$), and cosider the
+expected value of the cut if we choose randomly other $\floor{\frac{n}{2}}-k$ vertices and we place them into $L$. This quantity is specified as follow $\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\} \in L]$\footnote{$C(L,R)$ is a function which returns the cut size given two vertices partitions, $L$ and $R$, of a graph $G$, such that $L\cap R = \{\varnothing\}$.} and it represents the
+expected size of the cut, given that we know that $L$ contains the vertices $\{v_1, \ldots, v_k\}$. We now show
+how to select the next vertices which will be placed into $L$ such that:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\} \in L] \leq \mathbb{E}[C(L,V\backslash R)| \{v_1, \ldots, v_{k+1}\} \in L]
+\end{equation}
+It follows that:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)] \leq \mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_{\floor{\frac{n}{2}}}\} \in L]
+\end{equation}
+The right side of the inequality shows the size of the cut when we have completely filled the $L$ partition (if the $L$ partition is full, then we consider all the remaining vertices to be on the ``other side" of the cut and our algorithms has ended).
+Therefore, we can ultimately say that:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_{\floor{\frac{n}{2}}}\} \in L] \geq m \frac{n}{2n-1}
+\end{equation}
+
+\begin{proof}
+We can prove the previous statements by induction.
+\smallskip
+The base case in the induction is:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L) | \{\varnothing\} \in L ] \geq m\frac{n}{2n-1}
+\end{equation}
+Then, we prove the induction step, which is:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\} \in L] \leq \mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_{k+1}\} \in L]
+\end{equation}
+We consider now what of the remaining $n-k$ vertices has to be included into the $L$ partition. We want them
+to have an uniform probability of being selected. Therefore, the expectation is modeled as:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\} \in L] = \sum_{v \in V\backslash L} \frac{1}{n-k}\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_{k}, v\} \in L]
+\end{equation}
+It follows that:
+\begin{equation}
+\max_{v \in V\backslash L}(\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k, v\} \in L]) \geq \mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\}]
+\end{equation}
+Therefore, we just have to compute which one of the $v \in V\backslash L$ gives the largest expectation and then
+we can add it to the $L$ partition. Once we do this, we will define a placement which satisfies:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\} \in L] \leq \mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_{k+1}\} \in L]
+\end{equation}
+\end{proof}
+We now describe how to compute the expectation $\mathbb{E}$ efficiently, given that we know a subset of $L$. 
+Since the expectation computes the expected size of the cut, we can represent it as the expected number of edges
+which will be part of the cut. $\mathbb{E}$ can be written as:
+\begin{equation}
+\mathbb{E}[C(L,V\backslash L)| \{v_1, \ldots, v_k\} \in L] = |e_L|\cdot P_{e_L} + (|E|-|e_L|)\cdot P_{|E|-e_L}
+\end{equation}
+We now explain the terms inside the expectation formula:
+\begin{enumerate}
+\item By $e_L$ we indicates the number of edges which have a vertex $v \in L$ and therefore can be part of the cut. This number can be computed efficiently everytime we add a new vertex into $L$.
+\item Each edge which has one of its vertices already inside $L$ has the same probability to being selected for the final
+cut. Namely, the other vertex has never to be selected for the cut, and this event has probability:
+\begin{equation}
+P_{e_L}= \prod_{i=0}^{\floor{\frac{n}{2}}-k} \frac{n-k-i-1}{n-k-i}
+\end{equation} 
+\item By $|E|-e_L$ we indicates the remaining number of edges which can be still selected to be part of the cut. Each
+of them has the same probability of being selected. Namely, the probability is computed as follow:
+\begin{equation}
+P_{|E|-e_L} = 2 \cdot \sum_{j=0}^{\floor{\frac{n}{2}}-k}\frac{1}{n-k-j}\prod_{i=0}^{\floor{\frac{n}{2}}-k} \frac{n-k-i-1}{n-k-i}
+\end{equation}
+Given an edge $e$ composed by vertices $u$ and $v$, the formula above compute the probability that just one of the
+two vertices is selected to be placed into $L$ and the other is never selected (the values is doubled since its symmetric with 
+respect to the vertex which is choosen). 
+\end{enumerate}
+The expectation can be computed in $\mathcal{O}(n)$ time, since computing $P_e$ and $P_{|E|-e_L}$ takes linear time
+(we can notice how the product of sequence of term in $P_{|E|-e_L}$ is equal to $P_e$ and therefore it can be 
+computed only once).
+\smallskip
+
+We now provide the pseudocode for the derandomized Max-Cut algorithm:
+\begin{algorithm}
+\caption{Derandomized Max-Cut algorithm}
+\begin{algorithmic}[1]
+\Function{MAX-CUT}{$G=(V,E)$}
+\State $L \gets \{ \}$;
+\For{$i=0$ to $\ceil{\frac{n}{2}}$}
+	\State $maxExp \gets -1$;	
+	\State $newState \gets \{\}$;	
+	\For{$v \in V\backslash L$}
+		\State $nextExp = \mathbb{E}(C(L,R)|L\cup {v})$; \Comment{Expectation we would ge by adding $v$ to $L$.}	
+		\If{$nextExp > maxExp$}
+			\State $nextExp \gets maxExp$;
+			\State $newState \gets \{v\}$;
+		\EndIf	
+	\EndFor
+	\State $L \gets L \cup {v}$;
+\EndFor
+\State \Return $L$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+We now analyze its complexity:
+\begin{enumerate}
+\item On line 3, the loop has a complexity of $\mathcal{O}(\ceil{\frac{n}{2}}) = \mathcal{O}(n)$;
+\item On line 6, we loop over all vertices and therefore it has complexity of $\mathcal{O}(n)$;
+\item On line 7, computing the expectations requires linear time with respects of the number of vertices and
+therefore it has complexity $O(n)$;
+\end{enumerate}
+In conclusion, we expect this algorithm to have a final complexity of $\mathcal{O}(n^3)$.
+
+\section*{Question 3}
+\subsection*{a)}
+We procede by first rewriting the original statement into a form which will be more
+useful to us later on. With $S$ we indicate the number of samples (namely, how many times
+we sampled from $Y$). With $Z$ we denote the new random variable obtained by sampling $S$ time from $Y$ and with $X$ we indicate the number of time we got $Y=1$ (which is the sum off all samples we got, namely $Z = \sum_{i=0}^{S} X_i = X$). 
+\begin{gather}
+\label{eq:initial}
+P[|\hat{p}-p| \leq \frac{1}{N}] \geq 1-\frac{1}{N} \\
+P[|\frac{X}{S}-p|\leq \frac{1}{N}] \geq 1-\frac{1}{N}\\
+P[|X-Sp|\leq \frac{S}{N}] \geq 1-\frac{1}{N}\\
+1 - P[|X-Sp| > \frac{S}{N}] \geq 1-\frac{1}{N}\\
+P[|X-Sp| > \frac{S}{N}] \leq \frac{1}{N}
+\end{gather}
+We can easily notice that the coefficient $Sp$ is equivalent to the expected value of $Z$. 
+We can now proceed by using the Chernoff's bound to find the minimal number of samples needed to
+satisfies inequality (\ref{eq:initial}). We will use this version of the Chernoff's bound:
+\begin{equation}
+P[|X-\mu|\geq \sigma\delta] \leq 2\cdot \exp(-\frac{\mu\delta^2}{3})
+\end{equation}
+We know that $\mu\delta = \frac{S}{N}$ and therefore $\delta = \frac{S}{\mu N}$:
+\begin{align}
+P[|X-Sp| > \frac{S}{N}] &\leq 2 \cdot \exp (-\frac{S^2}{\mu^2 N^2}\cdot \frac{\mu}{3})\\
+&\leq  2 \cdot \exp(-\frac{S^2}{\mu N^2 }\cdot \frac{1}{3})\\
+&\leq  2 \cdot \exp(-\frac{S}{p N^2 }\cdot \frac{1}{3})
+\end{align}
+Since we want the original probability to be less or equal than $\frac{1}{N}$, we have to be sure that the bound found thanks 
+to Chernoff is less than this value:
+\begin{gather}
+\frac{1}{N} \geq  2 \cdot \exp(-\frac{S}{p N^2 }\cdot \frac{1}{3})\\
+\frac{1}{2N} \geq \exp(-\frac{S}{p N^2 }\cdot \frac{1}{3})\\
+-\ln(2N) \geq -\frac{S}{3p N^2 }\\
+S \geq 3pN^2 \ln(2N)
+%\hbox{$p$ can be seen as a multiplicative constant, and therefore we can safely assume that:}\\
+%S \geq 3pN^2 \ln(2N) \geq 3N^2\ln(2N)
+\end{gather} 
+Therefore, to get the desired ``precision" in our estimate, we need to draw at least $3pN^2\ln(2N)$ samples
+from the random variable $Y$. Therefore, we can achieve the result with polynomially-many samples.
+\newpage
+
+\section*{Question 4}
+\subsection*{a)}
+Thanks to the linearity of the expectation, $\mathbb{E}[X]$ is the sum of all the expectations of the indicators
+variables $X_f$. There are $\binom{n}{4}$ possible $X_f$ variables, given the original graph $G$ (basically, they
+are equal to how many groups of 4 vertices we can form from $G$):
+\begin{gather}
+\mathbb{E}[X] = \mathbb{E}\left[\sum_{i=1}^{\binom{n}{4}}X_{f_i}\right] = \sum_{i=1}^{\binom{n}{4}} \mathbb{E}[X_{f_i}]
+\end{gather}
+We have to compute the expectation of the single random variable $X_f$, which is the probability that its 4 vertices
+will generate a 4-cycle, without the ``crossing edges":
+\begin{equation}
+\mathbb{E}[X_f] = 3p^4(1-p)^2
+\end{equation}
+The factor $3$ counts for all the possible arrangements of the four vertices (since it is a cycle composed by $k$ vertices, we block one of them and then compute a permutation of the others $(k-1)!$. However, some of the permutations are symmetric
+with respect to the blocked vertix, and therefore there are just half of them.). The final formula for
+the expectation of $X$ is:
+\begin{equation}
+\mathbb{E}[X] = \sum_{i=1}^{\binom{n}{4}} 3p^4(1-p)^2 = 3\binom{n}{4}p^4(1-p)^2
+\end{equation}
+
+\subsection*{b)}
+Given that $p=f(n)$ and $\lim_{n \rightarrow \infty}f(n) = 0$ we can show that: 
+\begin{equation}
+\lim_{n \rightarrow \infty} X_f = \lim_{n \rightarrow \infty} 3f(n)^4(1-f(n))^2 = 0
+\end{equation}
+This means that the probability that 4 vertices are arranged as a 4-cycle is equal to zero. Therefore, given the random 
+variable $X$, $\lim_{n \rightarrow \infty} P[X>0] = 0$, because all the underlinig $X_f$ which compose $X$ will be equal to zero.
+%(actually $P[X=k] \neq \sum_{i=0}^{\binom{\binom{n}{4}}{k}} P[X_{f_i}]$, since some of the $X_f$ variables may be not pairwise independent, since they may share edges, but since $f(n) \rightarrow 0$ there are basically no edges and there)
+
+\end{document}
