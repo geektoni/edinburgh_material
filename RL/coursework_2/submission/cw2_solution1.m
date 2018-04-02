@@ -61,10 +61,10 @@ Q_test1 = ones(4, 5, 3);
 Q_test1(:,:,1) = 100;
 Q_test1(:,:,3) = 100;% obviously this is not a correctly computed Q-function; it does imply a policy however: Always go Up! (though on a clear road it will default to the first indexed action: go left)
 
-% Value function's weights we need to estimate
+% V(s)'s weights we need to estimate
 weights = zeros(4,5);
 
-% Learning rate and a counter to decrease the learning rate alpha
+% Learning rate and a counter used to decrease the learning rate
 % after each iteration.
 alpha=0.01;
 counter=1;
@@ -133,7 +133,7 @@ for episode = 1:100
             
         %% Estimate V using TD(0)
         
-        % Update the parameters using functional approximation
+        % Get the feature of the next state
         next_state = MDP.getStateFeatures(realAgentLocation);
         
         % Compute the increment
@@ -153,9 +153,6 @@ for episode = 1:100
         
         %% End of V estimation code 
         
-        %     MDP.getReward( ...
-        %             previousAgentLocation, realAgentLocation, actionTaken )
-        
         Return = Return + agentRewardSignal;
         
         % If you want to view the agents behaviour sequentially, and with a
@@ -173,8 +170,8 @@ for episode = 1:100
         
         %refreshScreen
        
-        % After each update, plot the weight' "surface", instead of the
-        % representation of the agents movement. To speed up computations,
+        % After each update, plot the weight's "surface", instead of the
+        % representation of the agents movements. To speed up computations,
         % print them only after 10 iterations.
         if (mod(i, 10)==0)
             surf([1,2,3,4,5], [1,2,3,4], weights)
@@ -197,6 +194,9 @@ for episode = 1:100
     %pause(0.01)
     
 end % for each episode
+
+
+%% HELPER METHODS
 
 % Compute the V(s) value given the weights and the
 % state features (the value is computed as a linear combination).

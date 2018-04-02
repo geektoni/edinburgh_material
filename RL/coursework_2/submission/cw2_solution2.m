@@ -136,7 +136,8 @@ for episode = 1:50
             lambda*compQ(next_state_features, weights, next_action)...
                 - compQ(stateFeatures, weights, agent_action);
         
-        % Update the weights.
+        % Update the weights. To get the optimal policy, we have to choose
+        % the action that maximize Q(s,a) given the state.
         for col = 1:5
             for row = 1:4
                 weights(row, col, agent_action) = ...
@@ -167,12 +168,16 @@ for episode = 1:50
         % $currentMap$ is keeping track of which part of the full test map
         % should be printed by $refreshScreen$ or $printAgentTrajectory$.
         
+        %figure(1)
         %refreshScreen
         
         % After each update plot the weights' "surfaces", instead of the
         % representation of the agents movement. To speed up computations,
         % print them only after 10 iterations.
-        if (mod(i,10)==0)
+        % To disable this feature, just change the value 1 in
+        % the if below with 0.
+        if (mod(i,10)==0 && 1)
+            figure(2)
             subplot(2,2,1) 
             surf([1,2,3,4,5], [1,2,3,4], weights(:,:,1))
             title("Q(s,a) weights for action 1 (UP LEFT)")
@@ -204,9 +209,8 @@ for episode = 1:50
     agentLocation = realAgentLocation;
     
     %Return
-    
     %printAgentTrajectory
-    %pause(0.01)
+    %pause(0.001)
     
 end % for each episode
 

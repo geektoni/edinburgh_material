@@ -1,4 +1,5 @@
-I have modified both of the exercises in a way to not plotting the grid world and the car movement. 
+I have modified both of the exercises in a way to not plotting the grid world and the car movements. 
 I decided to show instead how the weight's surfaces evolve over time (since I think it is more entertaining). 
 To be more specific, in the first exercise I will plot on screen how the weights of the V(s) function change 
 and in the second exercise I will plot the weights of the Q(s,a) function.
+For both of the exercises, the weights are also printed to the Matlab's command window.
